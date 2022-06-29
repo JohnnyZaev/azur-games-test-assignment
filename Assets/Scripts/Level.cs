@@ -29,7 +29,10 @@ public class Level : MonoBehaviour, IWaveObserver, ILevelObserver, ICaptureBallO
     List<Labyrinth> labyrinths = new List<Labyrinth>();
 
     List<Ball> balls = new List<Ball>();
-
+    public Material ballMaterial;
+    public Ball[] fruitBall;
+    
+    
     public Text levelText;
 
     bool inMove;
@@ -386,9 +389,21 @@ public class Level : MonoBehaviour, IWaveObserver, ILevelObserver, ICaptureBallO
                 else if (ballSize < 9) ballSize = 1;
                 else if (ballSize < 10) ballSize = 2;
                 if (count >= max) continue;
-                var ball = Instantiate(ballSize == 2 ? gameConfig.ballBig : ballSize == 1 ? gameConfig.ballMid : gameConfig.ball, newLab.transform);
+                Ball ball;
+                if (PlayerPrefs.GetInt("level") == 1 && fruitBall != null)
+                {
+	                ball = Instantiate(fruitBall[Random.Range(0, fruitBall.Length)], newLab.transform);
+                }
+                else
+                {
+	                ball = Instantiate(ballSize == 2 ? gameConfig.ballBig : ballSize == 1 ? gameConfig.ballMid : gameConfig.ball, newLab.transform);
+                }
                 ball.transform.localPosition = Vector3.right * (j % sq - sq / 2) * 0.1f + Vector3.down * (j / sq - sq / 2) * 0.1f + Vector3.forward * d * 0.1f;
-
+                if (PlayerPrefs.GetInt("level") == 0 && ballMaterial != null)
+                {
+	                ball.gameObject.GetComponent<MeshRenderer>().material = ballMaterial;
+	                // ball.gameObject.GetComponent<SphereCollider>().radius -= 0.1f;
+                }
                 var scale = RemoteSettings.GetFloat(ballSize == 0 ? "ballSize0" : ballSize == 1 ? "ballSize1" : "ballSize2", 1f);
                 ball.transform.localScale *= (scale - 1f) * (totalMax - max) / totalMax + 1f;
 
